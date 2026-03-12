@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "mcp__claude_ai_Supabase__search_docs",
+      "WebSearch",
+      "Bash(node:*)",
+      "Bash(npm create:*)",
+      "Bash(npx create-vite@latest:*)",
+      "Bash(npx:*)",
+      "Bash(npm install:*)",
+      "Bash(rm:*)",
+      "Bash(npm run:*)",
+      "Bash(gh auth:*)",
+      "mcp__claude_ai_Supabase__apply_migration",
+      "mcp__claude_ai_Supabase__get_advisors",
+      "mcp__claude_ai_Supabase__deploy_edge_function",
+      "mcp__claude_ai_Supabase__list_edge_functions",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "mcp__claude_ai_Supabase__get_edge_function",
+      "mcp__claude_ai_Supabase__get_logs",
+      "Bash(start:*)",
+      "mcp__claude_ai_Supabase__list_projects",
+      "mcp__claude_ai_Supabase__get_project",
+      "mcp__claude_ai_Supabase__get_project_url",
+      "mcp__claude_ai_Supabase__get_publishable_keys",
+      "WebFetch(domain:sap-bi-dashboard.vercel.app)",
+      "Bash(curl:*)",
+      "WebFetch(domain:github.com)",
+      "mcp__puppeteer__puppeteer_navigate",
+      "mcp__puppeteer__puppeteer_screenshot",
+      "mcp__puppeteer__puppeteer_fill",
+      "mcp__puppeteer__puppeteer_click",
+      "mcp__puppeteer__puppeteer_evaluate",
+      "Bash(gh api:*)"
+    ]
+  }
+}
