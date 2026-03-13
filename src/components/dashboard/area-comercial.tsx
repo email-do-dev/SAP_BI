@@ -27,7 +27,7 @@ interface DashComercialFilters {
   canal: string
   grupo: string
 }
-
+// teste
 const emptyFilters: DashComercialFilters = { vendedor: '', uf: '', canal: '', grupo: '' }
 
 interface Props {
