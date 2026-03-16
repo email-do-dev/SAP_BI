@@ -8,6 +8,20 @@ This file provides guidance to Claude Code when working with this repository.
 
 All UI text is in **Brazilian Portuguese (pt-BR)**. Currency is BRL. Dates use `date-fns` with `ptBR` locale.
 
+## Branch por Usuário
+
+No início de cada conversa, execute `whoami` para identificar o usuário do servidor e aplique as regras abaixo:
+
+| Usuário do servidor | Regra |
+|---------------------|-------|
+| andre               | Pode trabalhar em qualquer branch. **Pergunte** em qual branch deseja trabalhar antes de prosseguir. |
+| bruno               | Pode trabalhar em qualquer branch. **Pergunte** em qual branch deseja trabalhar antes de prosseguir. |
+| eduardo             | Branch fixa: `features`. Faça `git checkout features` automaticamente. |
+
+Se a branch escolhida/designada não existir, crie-a a partir de `main` com `git checkout -b <branch>`.
+
+**Restrição para usuário `eduardo`:** Quando o usuário do servidor for `eduardo`, é PROIBIDO editar arquivos, fazer commits ou push em qualquer branch que não seja `features`. Se `eduardo` solicitar alterações e a branch atual não for `features`, recuse a operação e informe que ele só pode trabalhar na branch `features`.
+
 ## Commands
 
 ```bash
