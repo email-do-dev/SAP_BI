@@ -22,6 +22,18 @@ Se a branch escolhida/designada não existir, crie-a a partir de `main` com `git
 
 **Restrição para usuário `eduardo`:** Quando o usuário do servidor for `eduardo`, é PROIBIDO editar arquivos, fazer commits ou push em qualquer branch que não seja `features`. Se `eduardo` solicitar alterações e a branch atual não for `features`, recuse a operação e informe que ele só pode trabalhar na branch `features`.
 
+## PLAN.md por Usuário
+
+O arquivo `PLAN.md` é compartilhado entre todas as branches (via symlink). Ao editar o PLAN.md, cada usuário deve alterar **apenas a seção da sua branch**:
+
+| Usuário | Seção permitida no PLAN.md |
+|---------|---------------------------|
+| `eduardo` | Apenas a seção **🟡 Branch `features`** |
+| `bruno` | Qualquer seção (incluindo Backlog e Referência) |
+| `andre` | Qualquer seção (incluindo Backlog e Referência) |
+
+Se `eduardo` quiser atualizar o progresso ou adicionar tarefas, faça **apenas** dentro da seção `## 🟡 Branch features — Eduardo`. Nunca edite outras seções em nome do Eduardo.
+
 ## Commands
 
 ```bash
