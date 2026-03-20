@@ -667,8 +667,99 @@ export interface Database {
           error_count: number
           errors: Array<{ step: string; message: string }>
           triggered_by: 'pg_cron' | 'manual'
+          duration_ms: number | null
+          table_details: Array<{ table: string; upserted: number; deleted: number; duration_ms: number }> | null
         }
         Insert: Record<string, never>
+        Update: Record<string, never>
+      }
+      // === Logging System tables ===
+      audit_logs: {
+        Row: {
+          id: string
+          user_id: string | null
+          user_email: string | null
+          action: string
+          resource: string | null
+          resource_id: string | null
+          metadata: Record<string, unknown>
+          ip_address: string | null
+          user_agent: string | null
+          created_at: string
+        }
+        Insert: {
+          user_id?: string | null
+          user_email?: string | null
+          action: string
+          resource?: string | null
+          resource_id?: string | null
+          metadata?: Record<string, unknown>
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+        Update: Record<string, never>
+      }
+      frontend_error_logs: {
+        Row: {
+          id: string
+          user_id: string | null
+          error_type: string
+          message: string
+          stack: string | null
+          component_stack: string | null
+          url: string | null
+          metadata: Record<string, unknown>
+          created_at: string
+        }
+        Insert: {
+          user_id?: string | null
+          error_type: string
+          message: string
+          stack?: string | null
+          component_stack?: string | null
+          url?: string | null
+          metadata?: Record<string, unknown>
+        }
+        Update: Record<string, never>
+      }
+      edge_function_logs: {
+        Row: {
+          id: string
+          function_name: string
+          status: string
+          duration_ms: number | null
+          request_method: string | null
+          request_path: string | null
+          request_body_summary: Record<string, unknown> | null
+          response_status: number | null
+          error_message: string | null
+          error_stack: string | null
+          user_id: string | null
+          metadata: Record<string, unknown>
+          created_at: string
+        }
+        Insert: Record<string, never>
+        Update: Record<string, never>
+      }
+      security_logs: {
+        Row: {
+          id: string
+          user_id: string | null
+          user_email: string | null
+          event_type: string
+          ip_address: string | null
+          user_agent: string | null
+          metadata: Record<string, unknown>
+          created_at: string
+        }
+        Insert: {
+          user_id?: string | null
+          user_email?: string | null
+          event_type: string
+          ip_address?: string | null
+          user_agent?: string | null
+          metadata?: Record<string, unknown>
+        }
         Update: Record<string, never>
       }
       // === Importacao tables ===
