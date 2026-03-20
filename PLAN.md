@@ -33,18 +33,30 @@ Recebe merges de `develop` e `features` quando as funcionalidades estão estáve
 ### Sistema de Logs e Observabilidade (Fase 2 do Roadmap)
 
 > **Meta:** 5 camadas de logging com página unificada `/logs` (diretoria only).
-> **Pendência:** Escolha do serviço de e-mail (Resend vs Supabase Auth vs SMTP direto) — alinhar Bruno + Andre.
+> **E-mail:** Resend (domínio `matanorteltda.com.br` verificado, região sa-east-1). Remetente: `SAP BI <noreply@matanorteltda.com.br>`.
 
-#### Etapa 1 — Database + Types
+#### Etapa 1 — Database + Types + Email ✅ (2026-03-20)
 
-- [ ] Migration `00035_create_logging_system.sql` — 4 tabelas novas:
+- [x] Migration `00035_create_logging_system.sql` — 4 tabelas novas:
   - `audit_logs` — Quem fez o quê (login, CRUD, export, navegação)
   - `frontend_error_logs` — Erros JS/React em produção
   - `edge_function_logs` — Performance e erros das Edge Functions
   - `security_logs` — Login/logout, falhas, acessos negados
-- [ ] ALTER `sap_sync_log` — adicionar `duration_ms integer` e `table_details jsonb`
-- [ ] Atualizar `src/types/database.ts` com tipos das 4 tabelas novas
-- [ ] Edge Function `log-cleanup` — pg_cron diário, e-mail antes de deletar (30 dias)
+- [x] ALTER `sap_sync_log` — adicionar `duration_ms integer` e `table_details jsonb`
+- [x] SQL functions: `count_old_logs(retention_days)` e `delete_old_logs(retention_days)`
+- [x] Atualizar `src/types/database.ts` com tipos das 4 tabelas novas + campos extras no sap_sync_log
+- [x] Migration aplicada no Supabase (tabelas já existem no banco)
+- [x] Helper de email `supabase/functions/_shared/email.ts` — Resend API via fetch
+- [x] Edge Function `log-cleanup` — deployed (v1), `verify_jwt: false`
+  - `?action=preview&days=30` → conta logs antigos + envia email de aviso
+  - `?action=delete&days=30` → deleta logs > 31 dias (1 dia de grace após notificação)
+- [x] pg_cron configurado — 2 jobs:
+  - `log-cleanup-preview` → `0 0 * * *` (00:00 UTC / 21:00 BRT)
+  - `log-cleanup-delete` → `0 2 * * *` (02:00 UTC / 23:00 BRT)
+- [x] Resend: DNS verificado, API Key gerada, secrets `RESEND_API_KEY` e `ALERT_EMAIL_TO` no Supabase
+- [x] Commit `1fcd2ba` na branch `dev-1/logging-system`
+
+> **Nota:** O secret `ALERT_EMAIL_TO` pode estar com formato inválido (erro 422 no teste). Verificar no dashboard do Supabase — deve ser `email@example.com` sem aspas ou espaços extras.
 
 #### Etapa 2 — Edge Function Logger
 
