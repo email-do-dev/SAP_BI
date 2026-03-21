@@ -58,14 +58,16 @@ Recebe merges de `develop` e `features` quando as funcionalidades estão estáve
 
 > **Nota:** O secret `ALERT_EMAIL_TO` pode estar com formato inválido (erro 422 no teste). Verificar no dashboard do Supabase — deve ser `email@example.com` sem aspas ou espaços extras.
 
-#### Etapa 2 — Edge Function Logger
+#### Etapa 2 — Edge Function Logger ✅ (2026-03-21)
 
-- [ ] Criar `supabase/functions/_shared/logger.ts` — `createLogger(functionName, req)`
-- [ ] Modificar `sap-sync` — timing por tabela, popular `table_details` e `duration_ms`
-- [ ] Modificar `sap-query` — adicionar `createLogger`
-- [ ] Modificar `manage-users` — adicionar `createLogger` + audit_log
-- [ ] Modificar `create-user` — adicionar `createLogger`
-- [ ] Deploy das 4 Edge Functions + `log-cleanup`
+- [x] Criar `supabase/functions/_shared/logger.ts` — `createLogger(functionName, req)` com `save()` (edge_function_logs) e `audit()` (audit_logs)
+- [x] Modificar `sap-sync` — `syncBlock()` helper com timing por tabela, `table_details` jsonb e `duration_ms` no sap_sync_log + log em edge_function_logs
+- [x] Modificar `sap-query` — `createLogger` em todos os caminhos (401/400/200/500), metadata com query e rowCount
+- [x] Modificar `manage-users` — `createLogger` + audit_log para add_role/remove_role
+- [x] Modificar `create-user` — `createLogger` + audit_log para create_user (nunca loga password)
+- [x] Deploy das 5 Edge Functions (sap-sync v5, sap-query v5, manage-users v5, create-user v5, log-cleanup v2)
+- [x] Commit `122ad4b` na branch `dev-1/logging-system`
+- [x] Validado em produção: pg_cron sync às 14:50 UTC registrou 28 tabelas, 22.256 rows, 14.7s, 0 erros — `edge_function_logs` e `sap_sync_log.table_details` populados corretamente
 
 #### Etapa 3 — Frontend Hooks + Integrações
 
