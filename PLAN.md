@@ -122,34 +122,45 @@ Recebe merges de `develop` e `features` quando as funcionalidades estão estáve
 
 ## 🟡 Branch `features` — Eduardo
 
-### Módulo Logístico — Sprint 3: Romaneio + Descarrego
+### Módulo Logístico — Sprint 3: Romaneio + Descarrego ✅ (2026-03-22)
 
 > **Meta:** Completar o ciclo logístico: conferência de saída, acompanhamento e confirmação de entrega.
 
-#### Tab 2 — Romaneio de Saída
+#### Tab 2 — Romaneio de Saída ✅
 
-- [ ] Lista de cargas `programada`
-- [ ] Checklist de conferência por item (marca como verificado, registra lote)
-- [ ] Foto obrigatória do carregamento (camera do tablet) → Storage `shipment-photos`
-- [ ] Foto obrigatória do caminhão (placa visível)
-- [ ] Status `programada` → `expedida` (só libera com fotos)
-- [ ] Impressão de romaneio via `printContent()`
-- [ ] Interface tablet-friendly (botões 44px+, checklist visual)
+- [x] Lista de cargas `programada` com KPIs, filtros, progresso por qtd itens
+- [x] Checklist de conferência por NF (accordion, SKUs esperados vs paletizados, registro de lote)
+- [x] Registro de paletes com SKU, quantidade, lote + alertas de excesso
+- [x] Foto obrigatória do carregamento (camera do tablet) → Storage `shipment-photos`
+- [x] Foto obrigatória do lacre → Storage `shipment-photos`
+- [x] Número do lacre obrigatório
+- [x] Status `programada` → `em_expedicao` → `expedida` (só libera com fotos + lacre + paletes)
+- [x] Ordem de carregamento LIFO com auto-assign
+- [x] Impressão de romaneio via `printContent()`
+- [x] Interface tablet-friendly (botões 44px+, checklist visual)
+- [x] Botão "Reiniciar Conferência" com confirmação dupla (limpa tudo, volta para `programada`)
+- [x] Migrations: `pallets_data`, `seal_number`, `seal_photo_path` em shipments; `loading_order` em shipment_items
 
-#### Tab 3 — Acompanhamento de Entrega
+#### Tab 3 — Acompanhamento de Entrega ✅
 
-- [ ] Board de status por carga (manual)
-- [ ] Cards com veículo, motorista, destinos, % entregue
-- [ ] Formulário de registro de eventos (saída, chegada, entrega, problema)
-- [ ] Mobile-friendly
+- [x] Board de cargas expedidas/em trânsito com KPIs (em trânsito, aguardando saída, entregas parciais)
+- [x] Cards com veículo, motorista, destinos, % entregue, último evento de tracking
+- [x] Dialog de detalhe com resumo, lista de NFs/destinos, timeline de eventos
+- [x] Formulário de registro de eventos (saída, chegada ao operador, entrega, atraso, ocorrência, nota)
+- [x] Marcar NF como entregue + entrega ao operador (2 pernas)
+- [x] Auto-transição de status: departure→em_transito, delivery→entregue_parcial/entregue
+- [x] Botões de transição manual de status
+- [x] Mobile-friendly
 
-#### Tab 4 — Descarrego (Confirmação de Entrega)
+#### Tab 4 — Descarrego (Confirmação de Entrega) ✅
 
-- [ ] Foto de canhoto assinado → Storage `delivery-proofs`
-- [ ] Vinculação CTE do operador logístico
-- [ ] Registro de custo de descarrego
-- [ ] Para 2 pernas: marca entrega ao operador + prazo esperado
-- [ ] Todas NFs entregues → status `entregue`
+- [x] Lista de cargas `entregue` com KPIs (aguardando canhoto, aguardando CTE, finalizadas hoje)
+- [x] Foto de canhoto assinado por NF → Storage `delivery-proofs`
+- [x] Vinculação CTE do operador logístico (número + valor)
+- [x] Registro de custo de descarrego por NF
+- [x] Observações por NF
+- [x] Barra de progresso canhotos recebidos
+- [x] Finalizar carga → status `finalizada` (requer todos canhotos + CTEs)
 
 ### Módulo Logístico — Sprint 4: Devoluções + Custo + Cutover
 
