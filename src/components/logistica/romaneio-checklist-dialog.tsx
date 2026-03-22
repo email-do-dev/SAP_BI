@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/auth-context'
 import {
-  X, Camera, Printer, AlertTriangle,
+  X, Camera, Printer, AlertTriangle, RotateCcw,
   Upload, CheckCircle2, Loader2, Plus, Trash2, Package,
   Lock, ChevronDown, ChevronRight,
 } from 'lucide-react'
@@ -63,6 +63,8 @@ export function RomaneioChecklistDialog({ shipment, onClose }: Props) {
   // General state
   const [loadingPhoto, setLoadingPhoto] = useState<string | null>(null)
   const [isExpeding, setIsExpeding] = useState(false)
+  const [isResetting, setIsResetting] = useState(false)
+  const [confirmReset, setConfirmReset] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Items sorted by loading_order (LIFO: 1 = load first = deliver last)
@@ -371,6 +373,40 @@ export function RomaneioChecklistDialog({ shipment, onClose }: Props) {
       setError(`Erro ao expedir: ${err instanceof Error ? err.message : 'Erro desconhecido'}`)
     } finally {
       setIsExpeding(false)
+    }
+  }
+
+  // Reset conference — clear everything and go back to programada
+  const handleReset = async () => {
+    if (!confirmReset) {
+      setConfirmReset(true)
+      return
+    }
+    setIsResetting(true)
+    setError(null)
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: updateErr } = await (supabase.from('shipments') as any)
+        .update({
+          status: 'programada',
+          pallets_data: [],
+          seal_number: null,
+          seal_photo_path: null,
+          loading_photo_path: null,
+          expedition_verified_by: null,
+          expedition_verified_at: null,
+        })
+        .eq('id', shipment.id)
+      if (updateErr) throw updateErr
+
+      queryClient.invalidateQueries({ queryKey: ['romaneio-shipments'] })
+      queryClient.invalidateQueries({ queryKey: ['shipments'] })
+      onClose()
+    } catch (err) {
+      setError(`Erro ao reiniciar: ${err instanceof Error ? err.message : 'Erro desconhecido'}`)
+    } finally {
+      setIsResetting(false)
+      setConfirmReset(false)
     }
   }
 
@@ -862,6 +898,26 @@ export function RomaneioChecklistDialog({ shipment, onClose }: Props) {
               <Printer size={18} />
               Imprimir Romaneio
             </button>
+
+            {shipment.status === 'em_expedicao' && (
+              <button
+                onClick={handleReset}
+                disabled={isResetting}
+                className={cn(
+                  'flex min-h-[44px] items-center gap-2 rounded-md border px-4 py-2.5 text-sm font-medium transition-colors',
+                  confirmReset
+                    ? 'border-red-300 bg-red-50 text-red-700 hover:bg-red-100'
+                    : 'border-red-200 text-red-600 hover:bg-red-50'
+                )}
+              >
+                {isResetting ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <RotateCcw size={18} />
+                )}
+                {confirmReset ? 'Confirmar Reinício' : 'Reiniciar Conferência'}
+              </button>
+            )}
           </div>
         </section>
       </div>
