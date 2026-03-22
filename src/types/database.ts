@@ -5,6 +5,17 @@ export type CostSource = 'manual' | 'calculated' | 'sap'
 export type ShipmentStatusType = 'programada' | 'em_expedicao' | 'expedida' | 'em_transito' | 'entregue_parcial' | 'entregue' | 'finalizada' | 'cancelada'
 export type ReturnRequestStatusType = 'solicitada' | 'em_aprovacao' | 'aprovada' | 'nf_emitida' | 'retornada' | 'descartada' | 'fechada'
 
+export interface PalletEntry {
+  number: number
+  shipment_item_id: string
+  items: Array<{
+    item_code: string
+    descricao: string
+    quantidade: number
+    lote: string
+  }>
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -1031,6 +1042,9 @@ export interface Database {
           expedition_verified_at: string | null
           loading_photo_path: string | null
           vehicle_photo_path: string | null
+          seal_number: string | null
+          seal_photo_path: string | null
+          pallets_data: PalletEntry[]
           departed_at: string | null
           completed_at: string | null
           created_by: string
@@ -1066,6 +1080,9 @@ export interface Database {
           expedition_verified_at?: string | null
           loading_photo_path?: string | null
           vehicle_photo_path?: string | null
+          seal_number?: string | null
+          seal_photo_path?: string | null
+          pallets_data?: PalletEntry[]
           departed_at?: string | null
           completed_at?: string | null
         }
@@ -1099,6 +1116,7 @@ export interface Database {
           operator_delivered: boolean
           operator_delivered_at: string | null
           operator_expected_days: number | null
+          loading_order: number | null
           uf: string
           created_at: string
         }
@@ -1116,10 +1134,12 @@ export interface Database {
           box_count?: number
           delivery_type?: 'direct' | 'operator'
           operator_id?: string | null
+          loading_order?: number | null
           uf?: string
         }
         Update: {
           verified?: boolean
+          loading_order?: number | null
           lot_numbers?: string | null
           verified_qty?: unknown | null
           delivery_status?: 'pendente' | 'entregue' | 'devolvido_parcial' | 'devolvido_total'
