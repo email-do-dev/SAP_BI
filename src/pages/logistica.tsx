@@ -6,6 +6,7 @@ import { LOGISTICS_TABS, type LogisticsTab } from '@/lib/logistics-constants'
 import { CadastrosLogistica } from '@/components/logistica/cadastros-logistica'
 import { TabProgramacao } from '@/components/logistica/tab-programacao'
 import { TabRomaneio } from '@/components/logistica/tab-romaneio'
+import { TabAcompanhamento } from '@/components/logistica/tab-acompanhamento'
 import { Dialog } from '@/components/shared/dialog'
 
 // ---------------------------------------------------------------------------
@@ -48,6 +49,7 @@ function TabPlaceholder({ tabId, label }: { tabId: LogisticsTab; label: string }
 function TabContent({ tab }: { tab: LogisticsTab }) {
   if (tab === 'programacao') return <TabProgramacao />
   if (tab === 'romaneio') return <TabRomaneio />
+  if (tab === 'acompanhamento') return <TabAcompanhamento />
 
   const tabConfig = LOGISTICS_TABS.find((t) => t.id === tab)
   const label = tabConfig?.label ?? tab
