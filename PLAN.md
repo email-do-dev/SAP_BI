@@ -85,23 +85,43 @@ Recebe merges de `develop` e `features` quando as funcionalidades estão estáve
 - [ ] Rota `/logs` com `requiredRoles={['diretoria']}`
 - [ ] Item "Logs" no sidebar (ícone `ScrollText`)
 
-### DANFE — Impressão de NFe no Comercial
+### Back-Office de Documentos (DANFE + Boletos + CT-e)
 
-> **Meta:** Permitir impressão do DANFE diretamente na página Comercial quando o pedido está com status Faturado.
+> **Meta:** Módulo para upload de PDFs (DANFEs, boletos, CT-es) vinculados a Notas Fiscais, com visualização/impressão no detalhe dos pedidos. Três fases progressivas.
 
-#### Script de Sync (servidor SAP → Supabase Storage)
+#### Descobertas Técnicas (2026-03-23)
 
-- [ ] Script (PowerShell ou Node) no servidor SAP que monitora a pasta de XMLs
-- [ ] Upload automático para Supabase Storage (bucket `nfe-xml`)
-- [ ] Padrão de arquivo: `chaveNFe.xml` (44 dígitos)
-- [ ] Rodar como serviço do Windows ou Task Scheduler
+- **Chave de acesso NFe:** `DBInvOne.dbo.Process.KeyNfe` (banco do Tax-NFe, não `OINV.U_ChaveAcesso`)
+- **Vínculo SAP:** `DocEntry` + `DocType = 13` → `OINV.DocEntry`
+- **PDFs gerados pelo Tax-NFe:** `C:\...\B1_SHR\CaminhosSAP\Addons\NFe\DANFE\03912413000211\{chaveNfe}.pdf`
+- **XMLs comprimidos:** colunas `XmlSefaz`/`XmlEnvAssinado` usam compressão proprietária (não GZip) — descartado
+- **Leitura do filesystem:** requer stored procedure com `EXECUTE AS` para segurança — pendente avaliação
+- **CT-e:** emitido pela Mata Norte por outro sistema (não Tax-NFe), chave 44 dígitos, vincula à NF
+- **Pendente:** perguntar ao fornecedor do Tax-NFe se existe API/procedure para obter XML autorizado
 
-#### Frontend
+#### Plano Básico — Upload Manual por Pedido
 
-- [ ] Instalar `danfe-js` (ou lib equivalente para renderizar DANFE de XML)
-- [ ] Vincular XML ao pedido via número da NF (`Serial` da OINV → `sap_cache_pedidos`)
-- [ ] Botão "DANFE" no dialog de detalhe do pedido (visível apenas quando status = Faturado)
-- [ ] Buscar XML no Supabase Storage → renderizar PDF → imprimir/download
+- [ ] Migration `00035_create_backoffice_documents.sql` (tabela + bucket + RLS)
+- [ ] Query SAP `nf_chave_acesso` em `sap-connection.ts` (busca chave por DocEntry no DBInvOne)
+- [ ] Edge Function `danfe-validate` (OCR Claude Sonnet + validação chave)
+- [ ] Types em `database.ts` (backoffice_documents)
+- [ ] Hook `use-backoffice-documents.ts`
+- [ ] Página `/backoffice/documentos` (busca NF → seleciona → sobe PDF → valida)
+- [ ] Seção "Documentos" read-only no PedidoDetalheDialog
+- [ ] Sidebar + rota (roles: diretoria, comercial, financeiro)
+
+#### Plano Plus — Upload em Lote por Tipo
+
+- [ ] Operador seleciona tipo (DANFE/Boleto/CT-e) → sobe lote de PDFs
+- [ ] Query `nfe_busca_por_chave` (busca reversa: `WHERE KeyNfe = @chave`)
+- [ ] Sistema vincula automaticamente cada PDF ao pedido correto
+- [ ] Resultado em tempo real: vinculado/rejeitado/duplicado
+
+#### Plano Blaster — Identificação Automática Total
+
+- [ ] Operador arrasta qualquer mistura de PDFs
+- [ ] OCR identifica tipo (DANFE/Boleto/CT-e) + extrai dados de vinculação
+- [ ] Vinculação 100% automática, sem seleção de tipo
 
 ### Páginas Dedicadas (Fase 3 do Roadmap)
 
