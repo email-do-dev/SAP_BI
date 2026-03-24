@@ -31,6 +31,7 @@ const ImportacaoListPage = lazyRetry(() => import('@/pages/importacao/index'))
 const ImportacaoNovoPage = lazyRetry(() => import('@/pages/importacao/novo'))
 const ImportacaoDetailPage = lazyRetry(() => import('@/pages/importacao/detail'))
 const ProducaoPage = lazyRetry(() => import('@/pages/producao'))
+const LogsPage = lazyRetry(() => import('@/pages/logs'))
 
 function Loading() {
   return (
@@ -117,6 +118,14 @@ export default function App() {
             element={
               <ProtectedRoute requiredRoles={['diretoria', 'logistica', 'financeiro']}>
                 <CustoLogisticoPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="logs"
+            element={
+              <ProtectedRoute requiredRoles={['diretoria']}>
+                <LogsPage />
               </ProtectedRoute>
             }
           />
