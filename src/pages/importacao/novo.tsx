@@ -3,8 +3,10 @@ import { ArrowLeft } from 'lucide-react'
 import { ProcessForm } from '@/components/importacao/process-form'
 import { useCreateProcess } from '@/hooks/use-import-queries'
 import { useAuth } from '@/contexts/auth-context'
+import { usePageView } from '@/hooks/use-activity-log'
 
 export default function ImportacaoNovoPage() {
+  usePageView('importacao/novo')
   const navigate = useNavigate()
   const { user } = useAuth()
   const createProcess = useCreateProcess()

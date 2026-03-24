@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { usePageView } from '@/hooks/use-activity-log'
 import {
   ScrollText,
   Activity,
@@ -122,6 +123,7 @@ function securityColumns() {
 }
 
 export default function LogsPage() {
+  usePageView('logs')
   const [searchParams, setSearchParams] = useSearchParams()
   const rawTab = searchParams.get('tab') ?? 'atividades'
   const activeTab: LogTab = TABS.some((t) => t.id === rawTab) ? (rawTab as LogTab) : 'atividades'

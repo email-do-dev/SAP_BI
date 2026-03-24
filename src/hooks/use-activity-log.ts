@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/auth-context'
 
@@ -47,4 +47,20 @@ export function useActivityLog() {
   )
 
   return { logActivity }
+}
+
+/**
+ * Log a page view on mount. Fires once per resource value.
+ * Usage: usePageView('dashboard')
+ */
+export function usePageView(resource: string) {
+  const { logActivity } = useActivityLog()
+  const logged = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (resource && logged.current !== resource) {
+      logged.current = resource
+      logActivity({ action: 'view', resource })
+    }
+  }, [resource, logActivity])
 }
