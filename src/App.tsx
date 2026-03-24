@@ -1,11 +1,19 @@
-import { lazy, Suspense, Component, type ReactNode } from 'react'
+import { lazy, Suspense, Component, type ReactNode, type ErrorInfo } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/app-layout'
 import { ProtectedRoute } from '@/components/layout/protected-route'
+import { logFrontendError } from '@/hooks/use-error-logger'
 
 function lazyRetry(importFn: () => Promise<{ default: React.ComponentType }>) {
   return lazy(() =>
-    importFn().catch(() => {
+    importFn().catch((err) => {
+      const isChunkError = err?.name === 'ChunkLoadError' ||
+        String(err?.message).includes('Failed to fetch dynamically imported module')
+      logFrontendError({
+        errorType: isChunkError ? 'chunk_load_error' : 'lazy_retry_fail',
+        message: err?.message ?? 'Unknown lazy load error',
+        stack: err?.stack ?? null,
+      })
       window.location.reload()
       return new Promise(() => {})
     })
@@ -35,6 +43,14 @@ function Loading() {
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false }
   static getDerivedStateFromError() { return { hasError: true } }
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    logFrontendError({
+      errorType: 'error_boundary',
+      message: error.message,
+      stack: error.stack ?? null,
+      componentStack: errorInfo.componentStack ?? null,
+    })
+  }
   render() {
     if (this.state.hasError) {
       return (

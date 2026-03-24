@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, useCallback, type React
 import type { User, Session } from '@supabase/supabase-js'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { logSecurityEvent } from '@/lib/security-logger'
 import { env } from '@/config/env'
 import type { AppRole } from '@/types/database'
 
@@ -108,13 +109,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [resolveSession, queryClient])
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) {
+      logSecurityEvent({
+        eventType: 'login_failure',
+        userEmail: email,
+        metadata: { reason: error.message },
+      })
+      throw error
+    }
+    logSecurityEvent({
+      eventType: 'login_success',
+      userId: data.user?.id,
+      userEmail: data.user?.email ?? email,
+    })
   }
 
   const signOut = async () => {
+    const userId = state.user?.id
+    const userEmail = state.user?.email
     const { error } = await supabase.auth.signOut()
     if (error) throw error
+    logSecurityEvent({
+      eventType: 'logout',
+      userId,
+      userEmail,
+    })
   }
 
   const hasRole = (role: AppRole) => state.roles.includes(role)

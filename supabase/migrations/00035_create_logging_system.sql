@@ -64,6 +64,9 @@ CREATE POLICY "Service write frontend_error_logs" ON public.frontend_error_logs
 CREATE POLICY "Authenticated insert frontend_error_logs" ON public.frontend_error_logs
   FOR INSERT TO authenticated
   WITH CHECK (true);
+CREATE POLICY "Anon insert frontend_error_logs" ON public.frontend_error_logs
+  FOR INSERT TO anon
+  WITH CHECK (true);
 
 CREATE INDEX idx_frontend_errors_type ON public.frontend_error_logs (error_type, created_at DESC);
 CREATE INDEX idx_frontend_errors_created ON public.frontend_error_logs (created_at DESC);
@@ -128,6 +131,9 @@ CREATE POLICY "Service write security_logs" ON public.security_logs
   FOR ALL TO service_role USING (true);
 CREATE POLICY "Authenticated insert security_logs" ON public.security_logs
   FOR INSERT TO authenticated
+  WITH CHECK (true);
+CREATE POLICY "Anon insert security_logs" ON public.security_logs
+  FOR INSERT TO anon
   WITH CHECK (true);
 
 CREATE INDEX idx_security_logs_user ON public.security_logs (user_id, created_at DESC);
