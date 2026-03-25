@@ -19,6 +19,18 @@ import { sendEmail, getAlertRecipients } from "../_shared/email.ts";
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return corsResponse();
 
+  // Verify CRON_SECRET — only pg_cron and authorized callers can trigger cleanup
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  if (cronSecret) {
+    const provided = req.headers.get("x-cron-secret");
+    if (provided !== cronSecret) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized: invalid or missing x-cron-secret header" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+  }
+
   try {
     const url = new URL(req.url);
     const action = url.searchParams.get("action") || "preview";
