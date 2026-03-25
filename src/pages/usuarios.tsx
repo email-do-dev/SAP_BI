@@ -1,5 +1,6 @@
 import { useState, useMemo, type FormEvent } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { usePageView } from '@/hooks/use-activity-log'
 import { createColumnHelper } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { UserPlus, Shield } from 'lucide-react'
@@ -43,6 +44,7 @@ async function manageUsers(action: string, params?: Record<string, unknown>) {
 const col = createColumnHelper<UserRow>()
 
 export default function UsuariosPage() {
+  usePageView('usuarios')
   const queryClient = useQueryClient()
   const [showCreate, setShowCreate] = useState(false)
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null)

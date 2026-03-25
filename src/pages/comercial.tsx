@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { createColumnHelper } from '@tanstack/react-table'
+import { usePageView, useActivityLog } from '@/hooks/use-activity-log'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { ShoppingCart, FileText, Truck, ClipboardList, PackageCheck, RotateCcw } from 'lucide-react'
@@ -48,6 +49,8 @@ function formatDateCell(value: string | null) {
 }
 
 export default function ComercialPage() {
+  usePageView('comercial')
+  const { logActivity } = useActivityLog()
   const [selectedOrder, setSelectedOrder] = useState<Pedido | null>(null)
   const [filters, setFilters] = useState<BusinessFilters>(emptyFilters)
   const [tableDateField, setTableDateField] = useState<DateFieldOption>('doc_date')
@@ -208,6 +211,7 @@ export default function ComercialPage() {
     setFilters((prev) => ({ ...prev, [key]: value }))
 
   const handleExport = () => {
+    logActivity({ action: 'export', resource: 'comercial', metadata: { rows: filteredData.length } })
     exportToCsv(filteredData, [
       { key: 'doc_num', header: 'Nº Doc' },
       { key: 'tipo', header: 'Tipo' },

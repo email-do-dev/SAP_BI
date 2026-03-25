@@ -94,7 +94,7 @@ export function ShipmentEditDialog({ shipment, open, onClose, pendingOrders = []
     enabled: open,
   })
 
-  const items = shipment?.items?.filter((i) => !removedItemIds.has(i.id)) ?? []
+  const items = useMemo(() => shipment?.items?.filter((i) => !removedItemIds.has(i.id)) ?? [], [shipment?.items, removedItemIds])
   const totalWeight = items.reduce((sum, i) => sum + (i.weight_kg ?? 0), 0)
     + addedOrders.reduce((s, o) => s + (o.total_weight_kg ?? 0), 0)
   const totalValue = items.reduce((sum, i) => sum + (i.doc_total ?? 0), 0)
@@ -103,9 +103,9 @@ export function ShipmentEditDialog({ shipment, open, onClose, pendingOrders = []
     + addedOrders.reduce((sum, o) => sum + (o.total_pallets ?? 0), 0)
 
   // Filter available orders for add panel
-  const addedDocEntries = new Set(addedOrders.map((o) => o.doc_entry))
-  const existingDocEntries = new Set(items.map((i) => i.doc_entry))
   const availableOrders = useMemo(() => {
+    const existingDocEntries = new Set(items.map((i) => i.doc_entry))
+    const addedDocEntries = new Set(addedOrders.map((o) => o.doc_entry))
     return pendingOrders.filter((o) => {
       if (existingDocEntries.has(o.doc_entry) || addedDocEntries.has(o.doc_entry)) return false
       if (!addSearch) return true
@@ -116,7 +116,7 @@ export function ShipmentEditDialog({ shipment, open, onClose, pendingOrders = []
         (o.uf ?? '').toLowerCase().includes(s)
       )
     })
-  }, [pendingOrders, existingDocEntries, addedDocEntries, addSearch])
+  }, [pendingOrders, items, addedOrders, addSearch])
 
   const selectedVehicle = vehicles.find((v) => v.id === vehicleId)
   const vehicleType = selectedVehicle?.vehicle_type as VehicleType | undefined

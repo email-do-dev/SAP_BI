@@ -13,6 +13,7 @@ import { getFreeTimeRemaining } from '@/lib/import-constants'
 import { PipelineView } from '@/components/importacao/pipeline-view'
 import { useImportProcesses, type ImportProcess } from '@/hooks/use-import-queries'
 import { useAuth } from '@/contexts/auth-context'
+import { usePageView } from '@/hooks/use-activity-log'
 import { cn } from '@/lib/utils'
 
 const col = createColumnHelper<ImportProcess>()
@@ -49,6 +50,7 @@ const columns = [
 ]
 
 export default function ImportacaoListPage() {
+  usePageView('importacao')
   const navigate = useNavigate()
   const { hasRole } = useAuth()
   const { data: processes = [], isLoading } = useImportProcesses()

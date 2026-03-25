@@ -8,6 +8,7 @@ import {
   Users,
   Ship,
   Factory,
+  ScrollText,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -31,6 +32,7 @@ const navItems: NavItem[] = [
   { label: 'Devoluções', href: '/devolucoes', icon: <RotateCcw size={20} />, roles: ['diretoria', 'comercial', 'financeiro'] },
   { label: 'Custo Logístico', href: '/custo-logistico', icon: <DollarSign size={20} />, roles: ['diretoria', 'logistica', 'financeiro'] },
   { label: 'Importações', href: '/importacao', icon: <Ship size={20} />, roles: ['diretoria', 'importacao', 'financeiro'] },
+  { label: 'Logs', href: '/logs', icon: <ScrollText size={20} />, roles: ['diretoria'] },
   { label: 'Usuários', href: '/usuarios', icon: <Users size={20} />, roles: ['diretoria'] },
 ]
 

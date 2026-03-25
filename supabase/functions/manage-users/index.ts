@@ -1,14 +1,19 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { corsHeaders, corsResponse } from "../_shared/cors.ts";
 import { getSupabaseClient, getServiceClient } from "../_shared/auth.ts";
+import { createLogger } from "../_shared/logger.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return corsResponse();
+
+  const logger = createLogger("manage-users", req);
+  const serviceClient = getServiceClient();
 
   try {
     // Verify the caller has diretoria role
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
+      await logger.save(serviceClient, { status: "error", responseStatus: 401, errorMessage: "Missing authorization" });
       return new Response(JSON.stringify({ error: "Missing authorization" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -21,19 +26,20 @@ Deno.serve(async (req: Request) => {
     } = await callerClient.auth.getUser();
 
     if (!caller) {
+      await logger.save(serviceClient, { status: "error", responseStatus: 401, errorMessage: "Unauthorized" });
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const serviceClient = getServiceClient();
     const { data: hasRole } = await serviceClient.rpc("has_role", {
       _user_id: caller.id,
       _role: "diretoria",
     });
 
     if (!hasRole) {
+      await logger.save(serviceClient, { status: "error", responseStatus: 403, errorMessage: "Insufficient permissions", userId: caller.id });
       return new Response(
         JSON.stringify({ error: "Insufficient permissions. Requires diretoria role." }),
         {
@@ -43,7 +49,9 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { action, ...params } = await req.json();
+    const body = await req.json();
+    const { action, ...params } = body;
+    logger.setBody({ action });
 
     // LIST: return all users with their roles
     if (action === "list") {
@@ -51,6 +59,7 @@ Deno.serve(async (req: Request) => {
         await serviceClient.auth.admin.listUsers({ perPage: 1000 });
 
       if (listError) {
+        await logger.save(serviceClient, { status: "error", responseStatus: 500, errorMessage: listError.message, userId: caller.id });
         return new Response(JSON.stringify({ error: listError.message }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -77,6 +86,7 @@ Deno.serve(async (req: Request) => {
         roles: roleMap[u.id] ?? [],
       }));
 
+      await logger.save(serviceClient, { status: "ok", responseStatus: 200, userId: caller.id, metadata: { action: "list", userCount: users.length } });
       return new Response(JSON.stringify(users), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -86,6 +96,7 @@ Deno.serve(async (req: Request) => {
     if (action === "add_role") {
       const { user_id, role } = params;
       if (!user_id || !role) {
+        await logger.save(serviceClient, { status: "error", responseStatus: 400, errorMessage: "Missing user_id or role", userId: caller.id });
         return new Response(
           JSON.stringify({ error: "Missing user_id or role" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -101,6 +112,7 @@ Deno.serve(async (req: Request) => {
         .maybeSingle();
 
       if (existing) {
+        await logger.save(serviceClient, { status: "ok", responseStatus: 200, userId: caller.id, metadata: { action: "add_role", role, target_user: user_id, already_assigned: true } });
         return new Response(JSON.stringify({ success: true, message: "Role already assigned" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -111,12 +123,24 @@ Deno.serve(async (req: Request) => {
         .insert({ user_id, role });
 
       if (insertError) {
+        await logger.save(serviceClient, { status: "error", responseStatus: 500, errorMessage: insertError.message, userId: caller.id });
         return new Response(JSON.stringify({ error: insertError.message }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
+      // Audit log: role added
+      await logger.audit(serviceClient, {
+        userId: caller.id,
+        userEmail: caller.email ?? "",
+        action: "add_role",
+        resource: "user_roles",
+        resourceId: user_id,
+        metadata: { role },
+      });
+
+      await logger.save(serviceClient, { status: "ok", responseStatus: 200, userId: caller.id, metadata: { action: "add_role", role, target_user: user_id } });
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -126,6 +150,7 @@ Deno.serve(async (req: Request) => {
     if (action === "remove_role") {
       const { user_id, role } = params;
       if (!user_id || !role) {
+        await logger.save(serviceClient, { status: "error", responseStatus: 400, errorMessage: "Missing user_id or role", userId: caller.id });
         return new Response(
           JSON.stringify({ error: "Missing user_id or role" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -139,25 +164,45 @@ Deno.serve(async (req: Request) => {
         .eq("role", role);
 
       if (deleteError) {
+        await logger.save(serviceClient, { status: "error", responseStatus: 500, errorMessage: deleteError.message, userId: caller.id });
         return new Response(JSON.stringify({ error: deleteError.message }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
+      // Audit log: role removed
+      await logger.audit(serviceClient, {
+        userId: caller.id,
+        userEmail: caller.email ?? "",
+        action: "remove_role",
+        resource: "user_roles",
+        resourceId: user_id,
+        metadata: { role },
+      });
+
+      await logger.save(serviceClient, { status: "ok", responseStatus: 200, userId: caller.id, metadata: { action: "remove_role", role, target_user: user_id } });
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    await logger.save(serviceClient, { status: "error", responseStatus: 400, errorMessage: `Unknown action: ${action}`, userId: caller.id });
     return new Response(
       JSON.stringify({ error: `Unknown action: ${action}` }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
     console.error("manage-users error:", err);
+    const errMsg = err instanceof Error ? err.message : "Internal error";
+    await logger.save(serviceClient, {
+      status: "error",
+      responseStatus: 500,
+      errorMessage: errMsg,
+      errorStack: err instanceof Error ? err.stack : undefined,
+    });
     return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : "Internal error" }),
+      JSON.stringify({ error: errMsg }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

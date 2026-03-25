@@ -60,18 +60,20 @@ export function ShipmentCreateDialog({
   const [showAddPanel, setShowAddPanel] = useState(false)
   const [addSearch, setAddSearch] = useState('')
 
-  // Initialize orders with delivery_type when dialog opens
-  useMemo(() => {
+  // Adjust state when selectedOrders prop changes (React recommended pattern)
+  const [prevSelected, setPrevSelected] = useState(selectedOrders)
+  if (prevSelected !== selectedOrders) {
+    setPrevSelected(selectedOrders)
     setOrdersWithType(selectedOrders.map((o) => ({ ...o, delivery_type: 'direct' as DeliveryType })))
     setAddedOrders([])
     setShowAddPanel(false)
     setAddSearch('')
-  }, [selectedOrders])
+  }
 
   // Filter available orders for add panel
-  const selectedDocEntries = new Set(ordersWithType.map((o) => o.doc_entry))
-  const addedDocEntries = new Set(addedOrders.map((o) => o.doc_entry))
   const availableOrders = useMemo(() => {
+    const selectedDocEntries = new Set(ordersWithType.map((o) => o.doc_entry))
+    const addedDocEntries = new Set(addedOrders.map((o) => o.doc_entry))
     return pendingOrders.filter((o) => {
       if (selectedDocEntries.has(o.doc_entry) || addedDocEntries.has(o.doc_entry)) return false
       if (!addSearch) return true
@@ -82,7 +84,7 @@ export function ShipmentCreateDialog({
         (o.uf ?? '').toLowerCase().includes(s)
       )
     })
-  }, [pendingOrders, selectedDocEntries, addedDocEntries, addSearch])
+  }, [pendingOrders, ordersWithType, addedOrders, addSearch])
 
   // Fetch vehicles
   const { data: vehicles = [] } = useQuery<VehicleRow[]>({

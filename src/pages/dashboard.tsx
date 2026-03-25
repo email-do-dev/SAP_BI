@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { usePageView, useActivityLog } from '@/hooks/use-activity-log'
 import { useDashboardFilters } from '@/hooks/use-dashboard-filters'
 import { DashboardHeader } from '@/components/dashboard/dashboard-header'
 import { AreaTabs } from '@/components/dashboard/area-tabs'
@@ -14,6 +15,8 @@ import { SyncHealthBanner } from '@/components/shared/sync-health-banner'
 import { exportToCsv } from '@/lib/utils'
 
 export default function DashboardPage() {
+  usePageView('dashboard')
+  const { logActivity } = useActivityLog()
   const filters = useDashboardFilters()
 
   // refreshed_at from any cache table for the header indicator
@@ -31,6 +34,7 @@ export default function DashboardPage() {
   const lastSync = syncLogs?.[0]
 
   const handleExport = useCallback(() => {
+    logActivity({ action: 'export', resource: 'dashboard', metadata: { area: filters.area } })
     const rows = [
       { secao: filters.area, kpi: 'Período', valor: `${filters.dateRange.from} a ${filters.dateRange.to}` },
     ]
@@ -39,7 +43,7 @@ export default function DashboardPage() {
       { key: 'kpi', header: 'KPI' },
       { key: 'valor', header: 'Valor' },
     ], `dashboard-${filters.area}-${new Date().toISOString().slice(0, 10)}`)
-  }, [filters.area, filters.dateRange])
+  }, [filters.area, filters.dateRange, logActivity])
 
   return (
     <div className="space-y-6">

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Truck, Settings } from 'lucide-react'
+import { usePageView } from '@/hooks/use-activity-log'
 import { cn } from '@/lib/utils'
 import { LOGISTICS_TABS, type LogisticsTab } from '@/lib/logistics-constants'
 import { CadastrosLogistica } from '@/components/logistica/cadastros-logistica'
@@ -62,6 +63,7 @@ function TabContent({ tab }: { tab: LogisticsTab }) {
 // Main page
 // ---------------------------------------------------------------------------
 export default function LogisticaPage() {
+  usePageView('logistica')
   const [searchParams, setSearchParams] = useSearchParams()
   const [cadastrosOpen, setCadastrosOpen] = useState(false)
 

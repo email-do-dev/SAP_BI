@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { usePageView } from '@/hooks/use-activity-log'
 import {
   DollarSign,
   Truck,
@@ -54,6 +55,7 @@ const PIE_COLORS = ['#1e40af', '#f59e0b', '#10b981']
 const col = createColumnHelper<DeliveryCostSummary>()
 
 export default function CustoLogisticoPage() {
+  usePageView('custo-logistico')
   const queryClient = useQueryClient()
   const { user, hasRole } = useAuth()
   const [routeDialog, setRouteDialog] = useState<Entrega | null>(null)

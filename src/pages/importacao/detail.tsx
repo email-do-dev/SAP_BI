@@ -23,6 +23,7 @@ import {
   type ImportItem,
 } from '@/hooks/use-import-queries'
 import { getNextStatus, getStatusDef, INCOTERMS, CURRENCIES } from '@/lib/import-constants'
+import { usePageView } from '@/hooks/use-activity-log'
 
 type Tab = 'dados' | 'documentos' | 'custos' | 'tracking' | 'historico'
 
@@ -30,6 +31,7 @@ const itemCol = createColumnHelper<ImportItem>()
 
 export default function ImportacaoDetailPage() {
   const { id } = useParams<{ id: string }>()
+  usePageView(`importacao/${id}`)
   const navigate = useNavigate()
   const { user, hasRole } = useAuth()
   const canEdit = hasRole('diretoria') || hasRole('importacao')

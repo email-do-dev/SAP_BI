@@ -3,8 +3,7 @@
 -- Cache table for production orders list + app-owned registration/PCP tables
 -- ============================================================================
 
--- 1. New role
-ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'producao';
+-- 1. Role 'producao' was added in 00032b_add_producao_role.sql
 
 -- 2. Cache table — Production orders list (per-order, not aggregated)
 CREATE TABLE IF NOT EXISTS sap_cache_producao_ordens_lista (

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Factory, Settings } from 'lucide-react'
+import { usePageView } from '@/hooks/use-activity-log'
 import { cn } from '@/lib/utils'
 import { PRODUCTION_TABS, type ProductionTab } from '@/lib/production-constants'
 import { CadastrosProducao } from '@/components/producao/cadastros-producao'
@@ -35,6 +36,7 @@ function TabContent({ tab }: { tab: ProductionTab }) {
 // Main page
 // ---------------------------------------------------------------------------
 export default function ProducaoPage() {
+  usePageView('producao')
   const [searchParams, setSearchParams] = useSearchParams()
   const [cadastrosOpen, setCadastrosOpen] = useState(false)
 

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { createColumnHelper } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { RotateCcw, FileText, DollarSign, AlertTriangle } from 'lucide-react'
+import { usePageView, useActivityLog } from '@/hooks/use-activity-log'
 import { KpiCard } from '@/components/shared/kpi-card'
 import { DataTable } from '@/components/shared/data-table'
 import { RefreshIndicator } from '@/components/shared/refresh-indicator'
@@ -26,6 +27,8 @@ const col = createColumnHelper<Devolucao>()
 type Tab = 'returns' | 'credit_memos'
 
 export default function DevolucoesPage() {
+  usePageView('devolucoes')
+  const { logActivity } = useActivityLog()
   const [tab, setTab] = useState<Tab>('returns')
   const [selected, setSelected] = useState<Devolucao | null>(null)
 
@@ -57,6 +60,7 @@ export default function DevolucoesPage() {
   }, [devolucoes])
 
   const handleExport = () => {
+    logActivity({ action: 'export', resource: 'devolucoes', metadata: { rows: filtered.length } })
     exportToCsv(filtered, [
       { key: 'doc_num', header: 'Nº Documento' },
       { key: 'card_name', header: 'Cliente' },
