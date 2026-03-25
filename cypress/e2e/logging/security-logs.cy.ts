@@ -42,6 +42,7 @@ describe('Security Logs', () => {
       const log = resp.body[0]
       expect(log.event_type).to.eq('login_success')
       expect(log.user_email).to.eq(Cypress.env('TEST_USER_EMAIL'))
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       expect(log.user_id).to.not.be.undefined
     })
   })
