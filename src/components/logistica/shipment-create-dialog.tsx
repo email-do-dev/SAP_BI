@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 const toast = {
@@ -60,10 +60,10 @@ export function ShipmentCreateDialog({
   const [showAddPanel, setShowAddPanel] = useState(false)
   const [addSearch, setAddSearch] = useState('')
 
-  // Initialize orders with delivery_type when selectedOrders changes
-  const prevSelectedRef = useRef(selectedOrders)
-  if (prevSelectedRef.current !== selectedOrders) {
-    prevSelectedRef.current = selectedOrders
+  // Adjust state when selectedOrders prop changes (React recommended pattern)
+  const [prevSelected, setPrevSelected] = useState(selectedOrders)
+  if (prevSelected !== selectedOrders) {
+    setPrevSelected(selectedOrders)
     setOrdersWithType(selectedOrders.map((o) => ({ ...o, delivery_type: 'direct' as DeliveryType })))
     setAddedOrders([])
     setShowAddPanel(false)

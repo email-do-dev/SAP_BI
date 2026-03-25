@@ -17,9 +17,9 @@ interface SyncHealthBannerProps {
 export function SyncHealthBanner({ syncLog }: SyncHealthBannerProps) {
   const [dismissed, setDismissed] = useState(false)
 
-  // eslint-disable-next-line react-hooks/purity -- Date.now() is inherently impure but needed for staleness check
   const minutesAgo = useMemo(() => {
     if (!syncLog) return 0
+    // eslint-disable-next-line react-hooks/purity -- Date.now() is inherently impure but needed for staleness check
     return (Date.now() - new Date(syncLog.started_at).getTime()) / 60000
   }, [syncLog])
 
