@@ -94,7 +94,7 @@ export function ShipmentEditDialog({ shipment, open, onClose, pendingOrders = []
     enabled: open,
   })
 
-  const items = shipment?.items?.filter((i) => !removedItemIds.has(i.id)) ?? []
+  const items = useMemo(() => shipment?.items?.filter((i) => !removedItemIds.has(i.id)) ?? [], [shipment?.items, removedItemIds])
   const totalWeight = items.reduce((sum, i) => sum + (i.weight_kg ?? 0), 0)
     + addedOrders.reduce((s, o) => s + (o.total_weight_kg ?? 0), 0)
   const totalValue = items.reduce((sum, i) => sum + (i.doc_total ?? 0), 0)
