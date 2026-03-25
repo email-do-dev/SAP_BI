@@ -5,6 +5,7 @@ import { getPool, querySap, resolveQuery } from "../_shared/sap-connection.ts";
 import { createLogger } from "../_shared/logger.ts";
 
 // deno-lint-ignore no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SupabaseClient = ReturnType<typeof getServiceClient>;
 
 /** Upsert rows in 500-row chunks, then delete stale rows not refreshed in this cycle. Returns { upserted, deleted } counts. */
@@ -12,6 +13,7 @@ async function upsertAndClean(
   supabase: SupabaseClient,
   table: string,
   // deno-lint-ignore no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rows: Record<string, any>[],
   onConflict: string,
   now: string,
@@ -19,11 +21,13 @@ async function upsertAndClean(
   const batch = rows.map((r) => ({ ...r, refreshed_at: now }));
   for (let i = 0; i < batch.length; i += 500) {
     // deno-lint-ignore no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from(table) as any).upsert(batch.slice(i, i + 500), { onConflict });
     if (error) throw new Error(`upsert ${table} batch ${i}: ${error.message}`);
   }
   // Remove rows not updated in this sync cycle (cancelled/deleted in SAP)
   // deno-lint-ignore no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: deletedRows } = await (supabase.from(table) as any).delete().lt("refreshed_at", now).select();
   const deleted = deletedRows?.length ?? 0;
   return { upserted: rows.length, deleted };
@@ -34,12 +38,15 @@ async function replaceAll(
   supabase: SupabaseClient,
   table: string,
   // deno-lint-ignore no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   row: Record<string, any>,
   now: string,
 ) {
   // deno-lint-ignore no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (supabase.from(table) as any).delete().neq("id", "00000000-0000-0000-0000-000000000000");
   // deno-lint-ignore no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (supabase.from(table) as any).insert({ ...row, refreshed_at: now });
 }
 
@@ -187,6 +194,7 @@ Deno.serve(async (req: Request) => {
     await syncBlock("cr_aging", async () => {
       const [cr] = await querySap<Record<string, unknown>>(resolveQuery("cr_aging"));
       // deno-lint-ignore no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from("sap_cache_financeiro_aging") as any)
         .upsert({ tipo: "CR", ...cr, refreshed_at: now }, { onConflict: "tipo" });
       return { upserted: 1, deleted: 0 };
@@ -196,6 +204,7 @@ Deno.serve(async (req: Request) => {
     await syncBlock("cp_aging", async () => {
       const [cp] = await querySap<Record<string, unknown>>(resolveQuery("cp_aging"));
       // deno-lint-ignore no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from("sap_cache_financeiro_aging") as any)
         .upsert({ tipo: "CP", ...cp, refreshed_at: now }, { onConflict: "tipo" });
       return { upserted: 1, deleted: 0 };
