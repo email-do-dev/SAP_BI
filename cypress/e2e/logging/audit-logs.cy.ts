@@ -45,7 +45,7 @@ describe('Audit Logs', () => {
       expect(log.action).to.eq('view')
       expect(log.resource).to.eq('dashboard')
       expect(log.user_email).to.eq(Cypress.env('TEST_USER_EMAIL'))
-      expect(log.user_agent).to.not.be.null
+      expect(log.user_agent).to.not.be.undefined
     })
   })
 

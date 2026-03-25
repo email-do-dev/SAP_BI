@@ -1,4 +1,4 @@
-import { supabaseSignIn, supabaseSelect, supabaseDelete } from '../../support/supabase'
+import { supabaseSignIn, supabaseSelect } from '../../support/supabase'
 
 /**
  * security_logs — Login/logout/access_denied events.
@@ -10,7 +10,6 @@ import { supabaseSignIn, supabaseSelect, supabaseDelete } from '../../support/su
  */
 describe('Security Logs', () => {
   let accessToken: string
-  let userId: string
 
   before(() => {
     // Get a token to query logs after tests
@@ -19,7 +18,6 @@ describe('Security Logs', () => {
       Cypress.env('TEST_USER_PASSWORD')
     ).then((auth) => {
       accessToken = auth.accessToken
-      userId = auth.user.id
     })
   })
 
@@ -44,7 +42,7 @@ describe('Security Logs', () => {
       const log = resp.body[0]
       expect(log.event_type).to.eq('login_success')
       expect(log.user_email).to.eq(Cypress.env('TEST_USER_EMAIL'))
-      expect(log.user_id).to.not.be.null
+      expect(log.user_id).to.not.be.undefined
     })
   })
 

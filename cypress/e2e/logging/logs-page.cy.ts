@@ -1,4 +1,4 @@
-import { supabaseSignIn, supabaseSelect } from '../../support/supabase'
+import { supabaseSignIn } from '../../support/supabase'
 
 /**
  * Página /logs — Etapa 4 do sistema de logging.
@@ -12,16 +12,7 @@ import { supabaseSignIn, supabaseSelect } from '../../support/supabase'
  * 6. Apenas diretoria pode acessar (usuário limitado é redirecionado)
  */
 describe('Página /logs', () => {
-  let accessToken: string
-
   before(() => {
-    supabaseSignIn(
-      Cypress.env('TEST_USER_EMAIL'),
-      Cypress.env('TEST_USER_PASSWORD')
-    ).then((auth) => {
-      accessToken = auth.accessToken
-    })
-
     // Seed some log data so tables are not empty
     const supabaseUrl = Cypress.env('SUPABASE_URL')
     const supabaseKey = Cypress.env('SUPABASE_ANON_KEY')
