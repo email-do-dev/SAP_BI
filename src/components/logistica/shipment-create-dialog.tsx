@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 const toast = {
@@ -61,7 +61,7 @@ export function ShipmentCreateDialog({
   const [addSearch, setAddSearch] = useState('')
 
   // Initialize orders with delivery_type when dialog opens
-  useMemo(() => {
+  useEffect(() => {
     setOrdersWithType(selectedOrders.map((o) => ({ ...o, delivery_type: 'direct' as DeliveryType })))
     setAddedOrders([])
     setShowAddPanel(false)
@@ -69,9 +69,9 @@ export function ShipmentCreateDialog({
   }, [selectedOrders])
 
   // Filter available orders for add panel
-  const selectedDocEntries = new Set(ordersWithType.map((o) => o.doc_entry))
-  const addedDocEntries = new Set(addedOrders.map((o) => o.doc_entry))
   const availableOrders = useMemo(() => {
+    const selectedDocEntries = new Set(ordersWithType.map((o) => o.doc_entry))
+    const addedDocEntries = new Set(addedOrders.map((o) => o.doc_entry))
     return pendingOrders.filter((o) => {
       if (selectedDocEntries.has(o.doc_entry) || addedDocEntries.has(o.doc_entry)) return false
       if (!addSearch) return true
@@ -82,7 +82,7 @@ export function ShipmentCreateDialog({
         (o.uf ?? '').toLowerCase().includes(s)
       )
     })
-  }, [pendingOrders, selectedDocEntries, addedDocEntries, addSearch])
+  }, [pendingOrders, ordersWithType, addedOrders, addSearch])
 
   // Fetch vehicles
   const { data: vehicles = [] } = useQuery<VehicleRow[]>({
