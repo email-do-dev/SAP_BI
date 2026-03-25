@@ -1,5 +1,5 @@
 import { AlertTriangle, XCircle, Clock, X } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 
 interface SyncLog {
@@ -17,9 +17,12 @@ interface SyncHealthBannerProps {
 export function SyncHealthBanner({ syncLog }: SyncHealthBannerProps) {
   const [dismissed, setDismissed] = useState(false)
 
-  if (!syncLog || dismissed) return null
+  const minutesAgo = useMemo(() => {
+    if (!syncLog) return 0
+    return (Date.now() - new Date(syncLog.started_at).getTime()) / 60000
+  }, [syncLog])
 
-  const minutesAgo = (Date.now() - new Date(syncLog.started_at).getTime()) / 60000
+  if (!syncLog || dismissed) return null
   const isStale = minutesAgo > 25
 
   // No alert needed if last sync was OK and recent
