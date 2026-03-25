@@ -5,7 +5,6 @@ import { getPool, querySap, resolveQuery } from "../_shared/sap-connection.ts";
 import { createLogger } from "../_shared/logger.ts";
 
 // deno-lint-ignore no-explicit-any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SupabaseClient = ReturnType<typeof getServiceClient>;
 
 /** Upsert rows in 500-row chunks, then delete stale rows not refreshed in this cycle. Returns { upserted, deleted } counts. */
