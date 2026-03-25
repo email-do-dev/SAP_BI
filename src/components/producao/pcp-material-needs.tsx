@@ -46,8 +46,6 @@ const columns = [
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function PcpMaterialNeeds({ plans, visible }: PcpMaterialNeedsProps) {
-  if (!visible) return null
-
   // Aggregate planned quantities by item_code
   const summary = useMemo<MaterialSummary[]>(() => {
     const map = new Map<string, MaterialSummary>()
@@ -70,6 +68,8 @@ export function PcpMaterialNeeds({ plans, visible }: PcpMaterialNeedsProps) {
 
   const totalItems = summary.length
   const totalQty = summary.reduce((acc, s) => acc + s.total_qty, 0)
+
+  if (!visible) return null
 
   return (
     <div className="space-y-4">
