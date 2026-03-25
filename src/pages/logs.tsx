@@ -45,7 +45,6 @@ function formatDateShort(iso: string) {
   return format(new Date(iso), 'dd/MM HH:mm', { locale: ptBR })
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
     ok: 'bg-emerald-100 text-emerald-700',
